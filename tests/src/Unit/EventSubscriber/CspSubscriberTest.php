@@ -27,16 +27,14 @@ class CspSubscriberTest extends UnitTestCase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  public function setUp(): void {
     parent::setUp();
 
     if (!class_exists(Csp::class)) {
       $this->markTestSkipped('Content Security Policy module is not available.');
     }
 
-    $this->response = $this->getMockBuilder(HtmlResponse::class)
-      ->disableOriginalConstructor()
-      ->getMock();
+    $this->response = $this->createMock(HtmlResponse::class);
   }
 
   /**
@@ -91,15 +89,15 @@ class CspSubscriberTest extends UnitTestCase {
     $subscriber->registerHash('script-src-elem', 'test256-def456');
     $subscriber->onCspPolicyAlter($alterEvent);
 
-    $this->assertArrayEquals(
+    $this->assertEquals(
       [Csp::POLICY_SELF, "'test256-abc123'"],
       $alterEvent->getPolicy()->getDirective('script-src')
     );
-    $this->assertArrayEquals(
+    $this->assertEquals(
       [Csp::POLICY_SELF],
       $alterEvent->getPolicy()->getDirective('script-src-attr')
     );
-    $this->assertArrayEquals(
+    $this->assertEquals(
       [Csp::POLICY_SELF, "'test256-def456'"],
       $alterEvent->getPolicy()->getDirective('script-src-elem')
     );
@@ -125,13 +123,13 @@ class CspSubscriberTest extends UnitTestCase {
 
     // Other directives are not modified.
     // Script-src-elem should include values from default-src.
-    $this->assertArrayEquals(
+    $this->assertEquals(
       [Csp::POLICY_SELF],
       $alterEvent->getPolicy()->getDirective('default-src')
     );
     $this->assertFalse($alterEvent->getPolicy()->hasDirective('script-src'));
     $this->assertFalse($alterEvent->getPolicy()->hasDirective('script-src-attr'));
-    $this->assertArrayEquals(
+    $this->assertEquals(
       [Csp::POLICY_SELF, "'test256-def456'"],
       $alterEvent->getPolicy()->getDirective('script-src-elem')
     );
@@ -157,7 +155,7 @@ class CspSubscriberTest extends UnitTestCase {
     $subscriber->onCspPolicyAlter($alterEvent);
 
     $this->assertFalse($alterEvent->getPolicy()->hasDirective('default-src'));
-    $this->assertArrayEquals(
+    $this->assertEquals(
       [Csp::POLICY_SELF, Csp::POLICY_UNSAFE_INLINE],
       $alterEvent->getPolicy()->getDirective('script-src')
     );
